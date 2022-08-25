@@ -118,23 +118,31 @@ const Footer = () => (
 
 const CreateNew = (props) => {
     // Custom hooks
-    const content = useField('text', 'content')
-    const author = useField('text', 'author')
-    const info = useField('text', 'info')
-
+    // Use the spread operator and its attributes in React to consume the reset function before they are passed to the form
+    const {reset: resetContent, ...content} = useField('text', 'content')
+    const {reset: resetAuthor, ...author} = useField('text', 'author')
+    const {reset: resetInfo, ...info} = useField('text', 'info')
+    
     const navigate = useNavigate()
-
+    
     const handleSubmit = async (e) => {
         e.preventDefault()
         await props.addNew({
-            content: content.value,
+          content: content.value,
             author: author.value,
             info: info.value,
             votes: 0,
-        })
-        // Navigate to the "home page" after creating a new anecdote
-        navigate('/')
-    }
+          })
+          // Navigate to the "home page" after creating a new anecdote
+          navigate('/')
+        }
+        
+        // Reset the form
+        const handleReset = () => {
+          resetContent()
+          resetAuthor()
+          resetInfo()
+        }
 
     return (
         <div>
@@ -153,6 +161,9 @@ const CreateNew = (props) => {
                     <input {...info} />
                 </div>
                 <button>create</button>
+                <button type="button" onClick={handleReset}>
+                    reset
+                </button>
             </form>
         </div>
     )
