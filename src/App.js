@@ -5,9 +5,10 @@ import {
     Routes,
     Route,
     useParams,
+    useNavigate,
 } from 'react-router-dom'
 
-const Menu = ({ anecdotes }) => {
+const Menu = ({ anecdotes, addNew }) => {
     const padding = {
         paddingRight: 5,
     }
@@ -34,7 +35,10 @@ const Menu = ({ anecdotes }) => {
                     path="/anecdotes/:id"
                     element={<SingleAnecdote anecdotes={anecdotes} />}
                 />
-                <Route path="/createnew" element={<CreateNew />} />
+                <Route
+                    path="/createnew"
+                    element={<CreateNew addNew={addNew} />}
+                />
                 <Route path="/about" element={<About />} />
             </Routes>
         </Router>
@@ -115,15 +119,18 @@ const CreateNew = (props) => {
     const [content, setContent] = useState('')
     const [author, setAuthor] = useState('')
     const [info, setInfo] = useState('')
+    const navigate = useNavigate()
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
-        props.addNew({
+        await props.addNew({
             content,
             author,
             info,
             votes: 0,
         })
+        // Navigate to the "home page" after creating a new anecdote
+        navigate('/')
     }
 
     return (
@@ -180,9 +187,34 @@ const App = () => {
 
     const [notification, setNotification] = useState('')
 
+    // Notification component
+    const Notification = ({ notification }) => {
+        const notificationStyle = {
+            border: 'solid',
+            padding: 10,
+            borderWidth: 1,
+        }
+
+        // If notification is empty, return null
+        if (notification === '' || notification === null) {
+            return null
+        } else {
+            return (
+                <div style={notificationStyle} className="notification">
+                    {notification}
+                </div>
+            )
+        }
+    }
+
     const addNew = (anecdote) => {
         anecdote.id = Math.round(Math.random() * 10000)
         setAnecdotes(anecdotes.concat(anecdote))
+        // Set the notification and then remove it after 5 seconds
+        setNotification(`a new anecdote ${anecdote.content} created!`)
+        setTimeout(() => {
+            setNotification('')
+        }, 5000)
     }
 
     const anecdoteById = (id) => anecdotes.find((a) => a.id === id)
@@ -201,7 +233,8 @@ const App = () => {
     return (
         <div>
             <h1>Software anecdotes</h1>
-            <Menu anecdotes={anecdotes} />
+            <Notification notification={notification} />
+            <Menu anecdotes={anecdotes} addNew={addNew} />
             <Footer />
         </div>
     )
