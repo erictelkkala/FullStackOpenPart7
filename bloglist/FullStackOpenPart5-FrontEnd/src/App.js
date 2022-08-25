@@ -6,10 +6,14 @@ import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
 import Togglable from './components/Toggleable'
+import { useDispatch } from 'react-redux'
+import {
+    setNotification,
+    removeNotification,
+} from './reducers/notificationReducer'
 
 const App = () => {
-    const [errorMessage, setErrorMessage] = useState(null)
-    const [successMessage, setSuccessMessage] = useState(null)
+    const dispatch = useDispatch()
     const [blogs, setBlogs] = useState([])
     const [user, setUser] = useState(null)
     const [username, setUsername] = useState('')
@@ -108,16 +112,16 @@ const App = () => {
     }
 
     function setEM(message) {
-        setErrorMessage(message)
+        dispatch(setNotification({ message, type: 'error' }))
         setTimeout(() => {
-            setErrorMessage(null)
+            dispatch(removeNotification())
         }, 5000)
     }
 
     function setSM(message) {
-        setSuccessMessage(message)
+        dispatch(setNotification({ message, type: 'success' }))
         setTimeout(() => {
-            setSuccessMessage(null)
+            dispatch(removeNotification())
         }, 5000)
     }
 
@@ -144,12 +148,7 @@ const App = () => {
         <div>
             <h2>blogs</h2>
 
-            {/* Error or success notification */}
-            {errorMessage === null ? (
-                <Notification message={successMessage} type="success" />
-            ) : (
-                <Notification message={errorMessage} type="error" />
-            )}
+            <Notification></Notification>
 
             {/* Display the login form if the user is not logged in */}
             {user === null ? (
